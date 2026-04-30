@@ -4,13 +4,41 @@ html, body { height: 100%; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo",
     "Noto Sans KR", Roboto, sans-serif;
-  background: #0f1320;
+  background:
+    radial-gradient(ellipse at 0% 0%, rgba(125,249,255,.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 100% 100%, rgba(255,143,177,.10) 0%, transparent 50%),
+    linear-gradient(180deg, #1f2547 0%, #1a1d3a 100%);
   color: #e7ebf5;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  transition: background .4s ease;
 }
 button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; }
 button:disabled { cursor: not-allowed; opacity: .45; }
+
+/* Body theming when in game */
+body.in-game-swim {
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(255,255,255,.25) 0%, transparent 50%),
+    linear-gradient(180deg, #87ceeb 0%, #2c6db1 100%);
+}
+body.in-game-run {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.4) 0%, transparent 60%),
+    linear-gradient(180deg, #ffe066 0%, #ff8a3d 50%, #c84630 100%);
+}
+body.in-game-space {
+  background:
+    radial-gradient(ellipse at 25% 30%, rgba(192,132,252,.45) 0%, transparent 55%),
+    radial-gradient(ellipse at 75% 70%, rgba(125,249,255,.3) 0%, transparent 55%),
+    linear-gradient(135deg, #4d2a8c 0%, #7c3aed 50%, #ec4899 100%);
+}
+body.in-game-drink {
+  background:
+    radial-gradient(ellipse at 30% 30%, rgba(255,213,0,.4) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 70%, rgba(255,89,140,.45) 0%, transparent 55%),
+    linear-gradient(135deg, #d8722f 0%, #c44569 50%, #6b1d3a 100%);
+}
 
 #app { max-width: 1080px; margin: 0 auto; padding: 28px 20px 60px; }
 .screen { animation: fadeIn .25s ease; }
@@ -24,36 +52,38 @@ button:disabled { cursor: not-allowed; opacity: .45; }
   -webkit-background-clip: text; background-clip: text; color: transparent;
   letter-spacing: -.02em;
 }
-.subtitle { color: #98a2bf; margin-top: 8px; font-size: 14px; }
+.subtitle { color: #b8c0e0; margin-top: 8px; font-size: 14px; }
 
 .game-select {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 14px;
   margin-bottom: 32px;
 }
 .game-card {
-  background: #1a2036;
-  border: 2px solid #232a44;
+  background: rgba(26, 32, 54, .7);
+  backdrop-filter: blur(8px);
+  border: 2px solid rgba(255,255,255,.08);
   border-radius: 16px;
   padding: 22px 18px;
   text-align: center;
   transition: transform .15s ease, border-color .2s ease, background .2s ease;
 }
-.game-card:hover { transform: translateY(-2px); border-color: #3a4470; }
+.game-card:hover { transform: translateY(-2px); border-color: rgba(125,249,255,.5); }
 .game-card[aria-checked="true"] {
-  background: linear-gradient(135deg, #1f2a4d, #2a1f4d);
+  background: linear-gradient(135deg, rgba(125,249,255,.15), rgba(192,132,252,.15));
   border-color: #7df9ff;
   box-shadow: 0 0 0 3px rgba(125, 249, 255, .15);
 }
-.game-emoji { font-size: 38px; margin-bottom: 8px; }
+.game-emoji { font-size: 38px; margin-bottom: 8px; filter: drop-shadow(0 4px 8px rgba(0,0,0,.4)); }
 .game-title { font-size: 18px; font-weight: 700; }
-.game-desc { font-size: 12px; color: #98a2bf; margin-top: 4px; }
+.game-desc { font-size: 12px; color: #b8c0e0; margin-top: 4px; }
 
 /* ===== Players ===== */
 .players-section {
-  background: #161b2e;
-  border: 1px solid #232a44;
+  background: rgba(22,27,46,.7);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,.08);
   border-radius: 16px;
   padding: 22px;
   margin-bottom: 24px;
@@ -71,7 +101,7 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 }
 .player-row {
   display: flex; align-items: center; gap: 10px;
-  background: #1a2036; border: 1px solid #232a44;
+  background: rgba(26, 32, 54, .6); border: 1px solid rgba(255,255,255,.08);
   padding: 10px; border-radius: 12px;
 }
 .player-avatar {
@@ -80,12 +110,13 @@ button:disabled { cursor: not-allowed; opacity: .45; }
   overflow: hidden;
   display: flex; align-items: center; justify-content: center;
   position: relative;
+  cursor: pointer;
 }
 .player-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .player-avatar svg { width: 100%; height: 100%; }
 .player-input {
   flex: 1; min-width: 0;
-  background: #0f1320; border: 1px solid #2a3357;
+  background: rgba(15,19,32,.6); border: 1px solid rgba(255,255,255,.08);
   color: #e7ebf5; padding: 8px 10px; border-radius: 8px;
   font-size: 14px;
 }
@@ -93,56 +124,60 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 .player-actions { display: flex; gap: 4px; }
 .icon-btn {
   width: 32px; height: 32px; border-radius: 8px;
-  background: #2a3357; display: grid; place-items: center;
+  background: rgba(255,255,255,.08); display: grid; place-items: center;
   font-size: 14px; transition: background .15s ease;
 }
-.icon-btn:hover { background: #3a4470; }
-.icon-btn.danger:hover { background: #6b2a3a; }
+.icon-btn:hover { background: rgba(255,255,255,.16); }
+.icon-btn.danger:hover { background: rgba(220, 60, 90, .5); }
 
-.hint { color: #6c7596; font-size: 12px; margin-top: 12px; }
+.hint { color: #8c97c0; font-size: 12px; margin-top: 12px; }
 
 /* ===== Buttons ===== */
 .btn-primary {
   display: block; width: 100%;
   background: linear-gradient(135deg, #7df9ff 0%, #c084fc 100%);
-  color: #0f1320; font-weight: 700; font-size: 17px;
+  color: #0f1320; font-weight: 800; font-size: 17px;
   padding: 14px; border-radius: 14px;
   transition: transform .15s ease, box-shadow .2s ease;
 }
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(125, 249, 255, .25);
+  box-shadow: 0 8px 24px rgba(125, 249, 255, .35);
 }
 .btn-secondary {
-  background: #232a44; color: #e7ebf5;
+  background: rgba(255,255,255,.1); color: #e7ebf5;
   padding: 9px 14px; border-radius: 10px;
   font-size: 14px; font-weight: 600;
   transition: background .15s ease;
 }
-.btn-secondary:hover { background: #2f3859; }
+.btn-secondary:hover { background: rgba(255,255,255,.18); }
 .btn-ghost {
-  color: #98a2bf; padding: 8px 12px; border-radius: 8px;
+  color: #c8d0ee; padding: 8px 12px; border-radius: 8px;
   transition: color .15s ease;
 }
-.btn-ghost:hover { color: #e7ebf5; }
+.btn-ghost:hover { color: #fff; }
 
 /* ===== Game ===== */
 .game-topbar {
   display: flex; align-items: center; justify-content: space-between;
   margin-bottom: 14px;
 }
-.game-title-top { font-weight: 700; font-size: 18px; }
+.game-title-top { font-weight: 800; font-size: 18px; text-shadow: 0 2px 8px rgba(0,0,0,.3); }
 .timer {
   font-variant-numeric: tabular-nums;
-  font-weight: 700; font-size: 18px; color: #7df9ff;
+  font-weight: 800; font-size: 18px; color: #fff;
+  background: rgba(0,0,0,.35);
+  padding: 4px 12px;
+  border-radius: 8px;
 }
 
 #track-wrap {
   position: relative;
   border-radius: 18px;
   overflow: hidden;
-  border: 1px solid #232a44;
+  border: 1px solid rgba(255,255,255,.15);
   min-height: 320px;
+  box-shadow: 0 12px 36px rgba(0,0,0,.3);
 }
 #track {
   position: relative;
@@ -151,96 +186,152 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 }
 #finish-line {
   position: absolute; top: 0; bottom: 0;
-  right: 24px; width: 4px;
+  right: 24px; width: 6px;
   background: repeating-linear-gradient(
     0deg, #fff 0 12px, #111 12px 24px
   );
   z-index: 5;
   pointer-events: none;
+  box-shadow: -2px 0 10px rgba(255,255,255,.3);
 }
 
-/* Theme: swim */
+/* ============ THEMES ============ */
+/* Theme: swim — bright sunny ocean */
 #track.theme-swim {
   background:
-    linear-gradient(180deg, #5fb8e8 0%, #1c4f87 60%, #0a2647 100%);
+    radial-gradient(circle at 80% 12%, rgba(255,255,180,.6) 0%, transparent 18%),
+    linear-gradient(180deg, #b3e5fc 0%, #4fc3f7 30%, #1976d2 70%, #0d47a1 100%);
 }
 #track.theme-swim::before {
   content: ""; position: absolute; inset: 0;
   background:
-    radial-gradient(2px 2px at 20% 30%, rgba(255,255,255,.5), transparent),
-    radial-gradient(1px 1px at 70% 70%, rgba(255,255,255,.4), transparent),
-    radial-gradient(2px 2px at 40% 80%, rgba(255,255,255,.3), transparent);
+    radial-gradient(2px 2px at 12% 38%, rgba(255,255,255,.7), transparent),
+    radial-gradient(2px 2px at 24% 70%, rgba(255,255,255,.5), transparent),
+    radial-gradient(3px 3px at 48% 32%, rgba(255,255,255,.7), transparent),
+    radial-gradient(2px 2px at 67% 64%, rgba(255,255,255,.6), transparent),
+    radial-gradient(2px 2px at 88% 28%, rgba(255,255,255,.5), transparent),
+    radial-gradient(3px 3px at 92% 80%, rgba(255,255,255,.7), transparent);
   pointer-events: none;
+  animation: bubbleRise 8s linear infinite;
+}
+@keyframes bubbleRise {
+  from { transform: translateY(0); }
+  to { transform: translateY(-30px); }
 }
 
-/* Theme: run */
+/* Theme: run — sunny stadium */
 #track.theme-run {
   background:
-    linear-gradient(180deg, #ffd47a 0%, #ff9a3d 100%);
+    radial-gradient(circle at 50% 0%, rgba(255,250,200,.7) 0%, transparent 35%),
+    linear-gradient(180deg, #ffd54f 0%, #ff8a3d 60%, #c84630 100%);
 }
-
-/* Theme: drink (bar) */
-#track.theme-drink {
-  background:
-    radial-gradient(ellipse at 20% 30%, rgba(255,138,0,.25) 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 70%, rgba(217,4,128,.22) 0%, transparent 60%),
-    linear-gradient(180deg, #2a1410 0%, #160a18 100%);
-}
-#track.theme-drink::before {
+#track.theme-run::before {
   content: ""; position: absolute; inset: 0;
   background-image:
-    radial-gradient(2px 2px at 14% 22%, rgba(255,213,0,.7), transparent),
-    radial-gradient(2px 2px at 36% 78%, rgba(255,90,160,.7), transparent),
-    radial-gradient(2px 2px at 62% 30%, rgba(120,255,200,.6), transparent),
-    radial-gradient(2px 2px at 84% 64%, rgba(120,180,255,.7), transparent);
-  filter: blur(.5px);
+    repeating-linear-gradient(90deg,
+      rgba(255,255,255,0) 0 100px,
+      rgba(255,255,255,.18) 100px 102px);
   pointer-events: none;
+  animation: scrollLines 1.5s linear infinite;
+}
+@keyframes scrollLines {
+  from { background-position: 0 0; }
+  to { background-position: -100px 0; }
 }
 
-/* Theme: space */
+/* Theme: space — vibrant nebula (NOT black) */
 #track.theme-space {
   background:
-    radial-gradient(ellipse at 30% 40%, rgba(124,77,255,.25) 0%, transparent 60%),
-    radial-gradient(ellipse at 70% 60%, rgba(0,229,255,.2) 0%, transparent 60%),
-    linear-gradient(180deg, #060a1f 0%, #14002b 100%);
+    radial-gradient(ellipse 80% 60% at 25% 30%, rgba(192,132,252,.55) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 60% at 75% 60%, rgba(125,249,255,.45) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 50% 95%, rgba(255,107,177,.4) 0%, transparent 60%),
+    linear-gradient(135deg, #4d2a8c 0%, #7c3aed 50%, #ec4899 100%);
 }
 #track.theme-space::before {
-  content: ""; position: absolute; inset: 0;
+  content: ""; position: absolute; inset: -20%;
   background-image:
-    radial-gradient(1px 1px at 12% 18%, #fff, transparent),
-    radial-gradient(1px 1px at 33% 72%, #fff, transparent),
-    radial-gradient(1.5px 1.5px at 58% 24%, #fff, transparent),
-    radial-gradient(1px 1px at 80% 60%, #fff, transparent),
-    radial-gradient(1px 1px at 22% 88%, #fff, transparent),
-    radial-gradient(1.5px 1.5px at 90% 30%, #fff, transparent),
-    radial-gradient(1px 1px at 47% 50%, #fff, transparent);
-  opacity: .8;
+    radial-gradient(2px 2px at 8% 18%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 23% 72%, #fff, transparent),
+    radial-gradient(2.5px 2.5px at 38% 24%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 56% 60%, #fff, transparent),
+    radial-gradient(2px 2px at 71% 88%, #fff, transparent),
+    radial-gradient(2.5px 2.5px at 84% 30%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 92% 70%, #fff, transparent),
+    radial-gradient(2px 2px at 14% 44%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 47% 12%, #fff, transparent);
   pointer-events: none;
+  animation: spaceWarp 14s linear infinite;
+}
+@keyframes spaceWarp {
+  from { transform: translateX(0); }
+  to { transform: translateX(-300px); }
+}
+
+/* Theme: drink — warm bar */
+#track.theme-drink {
+  background:
+    radial-gradient(ellipse 50% 30% at 20% 18%, rgba(255,213,0,.55) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 30% at 80% 22%, rgba(255,89,140,.55) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 30% at 50% 35%, rgba(120,255,200,.4) 0%, transparent 60%),
+    linear-gradient(180deg, #ff8a3d 0%, #d8395d 35%, #6b1d3a 75%, #3d0d1f 100%);
+}
+#track.theme-drink::before {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0;
+  height: 32%;
+  background:
+    repeating-linear-gradient(90deg,
+      rgba(101, 50, 23, .85) 0 60px,
+      rgba(78, 38, 18, .85) 60px 62px),
+    linear-gradient(180deg, rgba(180,90,40,.4), rgba(60,30,15,.95));
+  border-top: 2px solid rgba(255,213,0,.4);
+  pointer-events: none;
+  z-index: 1;
 }
 
 /* Lanes */
 .lane {
   position: relative;
-  height: var(--lane-h, 56px);
-  border-bottom: 1px dashed rgba(255,255,255,.12);
+  height: var(--lane-h, 64px);
+  border-bottom: 1px dashed rgba(255,255,255,.15);
 }
 .lane:last-child { border-bottom: none; }
 .lane-label {
   position: absolute;
-  left: 8px; top: 50%; transform: translateY(-50%);
+  left: 8px; top: 6px;
   font-size: 11px; font-weight: 700;
-  background: rgba(0,0,0,.35); color: #fff;
-  padding: 2px 6px; border-radius: 6px;
+  background: rgba(0,0,0,.45); color: #fff;
+  padding: 2px 7px; border-radius: 6px;
   z-index: 2;
   pointer-events: none;
+  letter-spacing: -.01em;
 }
 
-/* Player token */
+/* Progress track (stationary mode — drink) */
+.progress-track {
+  position: absolute;
+  left: 96px; right: 36px; top: 50%;
+  height: 14px;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,.4);
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 1;
+}
+.progress-fill {
+  height: 100%; width: 0;
+  background:
+    linear-gradient(90deg, #ffd166 0%, #ef476f 60%, #d62246 100%);
+  box-shadow: 0 0 12px rgba(255,209,102,.6);
+  transition: width .15s ease;
+}
+
+/* ============ TOKEN ============ */
 .token {
   position: absolute;
   top: 50%;
   left: 0;
-  width: 44px; height: 44px;
+  width: 60px; height: 60px;
   transform: translate(0, -50%);
   z-index: 3;
   will-change: transform;
@@ -249,127 +340,383 @@ button:disabled { cursor: not-allowed; opacity: .45; }
   width: 100%; height: 100%;
   border-radius: 50%;
   overflow: hidden;
-  border: 2px solid #fff;
-  box-shadow: 0 4px 10px rgba(0,0,0,.35);
+  border: 3px solid #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,.45);
   background: #2a3357;
+  transition: box-shadow .2s ease;
 }
 .token .ava img,
 .token .ava svg { width: 100%; height: 100%; object-fit: cover; }
+/* Bare mode: image as-is, no circle, drop-shadow only */
+.token.bare .ava {
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,.55))
+          drop-shadow(0 0 2px rgba(0,0,0,.4));
+}
+.token.bare .ava img {
+  border-radius: 4px;
+  object-fit: contain;
+  background: transparent;
+}
+
 .token .name-tag {
   position: absolute;
   top: -16px; left: 50%; transform: translateX(-50%);
-  font-size: 10px; font-weight: 700;
-  background: rgba(0,0,0,.55); color: #fff;
-  padding: 1px 6px; border-radius: 5px;
+  font-size: 10px; font-weight: 800;
+  background: rgba(0,0,0,.6); color: #fff;
+  padding: 2px 7px; border-radius: 6px;
   white-space: nowrap;
+  letter-spacing: -.01em;
 }
 
-/* Effect overlays on token */
+/* Status label below character (does NOT rotate with token) */
+.status-label {
+  position: absolute;
+  top: calc(50% + 34px);
+  font-size: 11px; font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 8px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 4;
+  display: none;
+  transform: translateX(-50%);
+  text-shadow: 0 1px 2px rgba(0,0,0,.4);
+  letter-spacing: -.01em;
+}
+.status-label.on {
+  display: block;
+  animation: statusBob .35s ease-in-out infinite alternate;
+}
+.status-label[data-tone="good"] {
+  background: linear-gradient(135deg, #06d6a0, #1b9aaa);
+  color: #fff;
+  box-shadow: 0 0 14px rgba(6,214,160,.7), 0 2px 6px rgba(0,0,0,.4);
+}
+.status-label[data-tone="bad"] {
+  background: linear-gradient(135deg, #ff4d6d, #c1121f);
+  color: #fff;
+  box-shadow: 0 0 14px rgba(255,77,109,.8), 0 2px 6px rgba(0,0,0,.4);
+}
+.status-label[data-tone="party"] {
+  background: linear-gradient(135deg, #ffd166, #ef8354);
+  color: #2a1409;
+  box-shadow: 0 0 14px rgba(255,209,102,.8), 0 2px 6px rgba(0,0,0,.3);
+}
+@keyframes statusBob {
+  from { transform: translateX(-50%) translateY(0); }
+  to { transform: translateX(-50%) translateY(-3px); }
+}
+
+/* ============ DECO (per-game persistent) ============ */
+.token .deco { position: absolute; pointer-events: none; }
+
+/* Drink: drinking glass next to player */
+.theme-drink-token .deco::before {
+  content: "🍺";
+  position: absolute;
+  right: -28px; top: 50%;
+  transform: translateY(-50%) rotate(0);
+  font-size: 26px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,.5));
+  animation: drinkSip 3s ease-in-out infinite;
+  transform-origin: 30% 80%;
+}
+@keyframes drinkSip {
+  0%, 60% { transform: translateY(-50%) rotate(0); }
+  72%, 92% { transform: translateY(-50%) rotate(-50deg) translateX(-6px); }
+  100% { transform: translateY(-50%) rotate(0); }
+}
+
+/* Space: thrust trail behind ship */
+.theme-space-token .deco::before {
+  content: "";
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  margin-right: -10px;
+  width: 90px; height: 6px;
+  transform: translateY(-50%);
+  background: linear-gradient(to left,
+    rgba(125,249,255,.95) 0%,
+    rgba(192,132,252,.6) 40%,
+    rgba(255,143,177,.3) 70%,
+    transparent 100%);
+  border-radius: 4px;
+  filter: blur(2px);
+  z-index: -1;
+}
+.theme-space-token .deco::after {
+  content: "";
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  margin-right: -4px;
+  width: 36px; height: 14px;
+  transform: translateY(-50%);
+  background: radial-gradient(ellipse, rgba(255,255,255,.9), transparent 70%);
+  filter: blur(3px);
+  z-index: -1;
+}
+
+/* Run: dust puff at feet */
+.theme-run-token .deco::before {
+  content: "💨";
+  position: absolute;
+  right: 100%; bottom: 0;
+  margin-right: -6px;
+  font-size: 16px;
+  opacity: .8;
+  animation: dustPoof .4s ease-out infinite;
+}
+@keyframes dustPoof {
+  0% { opacity: 0; transform: translateX(0) scale(.6); }
+  50% { opacity: .8; }
+  100% { opacity: 0; transform: translateX(-14px) scale(1.1); }
+}
+
+/* Swim: splash wake */
+.theme-swim-token .deco::before {
+  content: "";
+  position: absolute;
+  right: 100%; top: 65%;
+  margin-right: -6px;
+  width: 30px; height: 10px;
+  transform: translateY(-50%);
+  background: radial-gradient(ellipse, rgba(255,255,255,.7), transparent 70%);
+  filter: blur(2px);
+  border-radius: 50%;
+  animation: splashWake .5s ease-out infinite;
+}
+@keyframes splashWake {
+  0% { opacity: 0; transform: translateY(-50%) scale(.5); }
+  50% { opacity: .8; }
+  100% { opacity: 0; transform: translateY(-50%) translateX(-20px) scale(1.4); }
+}
+
+/* ============ EFFECT FLASH (flashy overlays) ============ */
+/* Effect emoji bubbles around token */
 .token.effect-shark::after {
   content: "🦈"; position: absolute;
-  right: -28px; top: 50%; transform: translateY(-50%);
-  font-size: 24px;
+  right: -38px; top: 30%;
+  font-size: 30px;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,.5));
-  animation: sharkChase .4s ease-in-out infinite alternate;
+  animation: sharkChase .25s ease-in-out infinite alternate;
+  z-index: 5;
 }
 @keyframes sharkChase {
-  from { transform: translateY(-50%) translateX(0); }
-  to { transform: translateY(-50%) translateX(-4px); }
+  from { transform: translateX(0) rotate(-5deg); }
+  to { transform: translateX(-8px) rotate(5deg); }
 }
 .token.effect-cramp::after {
-  content: "💢"; position: absolute;
-  right: -10px; top: -8px;
-  font-size: 18px;
-  animation: pulse .35s ease-in-out infinite alternate;
+  content: "💢💢"; position: absolute;
+  right: -8px; top: -22px;
+  font-size: 22px;
+  letter-spacing: -6px;
+  animation: pulse .3s ease-in-out infinite alternate;
+  z-index: 5;
 }
 .token.effect-jelly::after {
   content: "🪼"; position: absolute;
-  left: -22px; top: 50%; transform: translateY(-50%);
-  font-size: 20px;
+  left: -28px; top: 50%; transform: translateY(-50%);
+  font-size: 28px;
+  animation: floatY 1s ease-in-out infinite alternate;
+  z-index: 5;
 }
 .token.effect-banana::after {
   content: "🍌"; position: absolute;
-  left: -2px; bottom: -6px; font-size: 16px;
+  left: -4px; bottom: -10px; font-size: 22px;
   animation: pulse .3s ease-in-out infinite alternate;
+  z-index: 5;
 }
 .token.effect-energy::after {
-  content: "⚡"; position: absolute;
-  left: -22px; top: 50%; transform: translateY(-50%);
-  font-size: 22px;
+  content: "⚡⚡"; position: absolute;
+  left: -32px; top: 50%; transform: translateY(-50%);
+  font-size: 24px; letter-spacing: -4px;
+  animation: pulse .2s ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 8px rgba(255,213,0,.9));
+  z-index: 5;
 }
 .token.effect-hurdle::after {
   content: "🚧"; position: absolute;
-  right: -22px; top: 50%; transform: translateY(-50%);
-  font-size: 20px;
+  right: -28px; top: 50%; transform: translateY(-50%);
+  font-size: 24px;
+  z-index: 5;
 }
 .token.effect-blackhole::after {
   content: "🕳️"; position: absolute;
-  right: -28px; top: 50%; transform: translateY(-50%);
-  font-size: 24px;
+  right: -34px; top: 50%; transform: translateY(-50%);
+  font-size: 30px;
   animation: spin 1s linear infinite;
+  z-index: 5;
 }
 .token.effect-asteroid::after {
   content: "☄️"; position: absolute;
-  right: -22px; top: -10px; font-size: 22px;
-  animation: pulse .25s ease-in-out infinite alternate;
+  right: -28px; top: -14px; font-size: 28px;
+  animation: pulse .2s ease-in-out infinite alternate;
+  z-index: 5;
 }
 .token.effect-warp::after {
-  content: "✨"; position: absolute;
-  left: -22px; top: 50%; transform: translateY(-50%);
-  font-size: 20px;
-  animation: pulse .25s ease-in-out infinite alternate;
+  content: "✨💫"; position: absolute;
+  left: -36px; top: 50%; transform: translateY(-50%);
+  font-size: 22px; letter-spacing: -4px;
+  animation: pulse .2s ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 8px rgba(125,249,255,.9));
+  z-index: 5;
 }
 .token.effect-oneshot::after {
   content: "🍻"; position: absolute;
-  left: -22px; top: 50%; transform: translateY(-50%);
-  font-size: 22px;
-  animation: pulse .3s ease-in-out infinite alternate;
+  left: -32px; top: 30%;
+  font-size: 28px;
+  animation: cheersBounce .25s ease-in-out infinite alternate;
+  z-index: 5;
+}
+@keyframes cheersBounce {
+  from { transform: translateY(0) rotate(-15deg); }
+  to { transform: translateY(-6px) rotate(15deg); }
 }
 .token.effect-vomit::after {
-  content: "🤢"; position: absolute;
-  right: -22px; top: -8px; font-size: 22px;
+  content: "🤢💚"; position: absolute;
+  right: -30px; top: -16px; font-size: 22px;
+  letter-spacing: -2px;
   animation: pulse .35s ease-in-out infinite alternate;
+  z-index: 5;
 }
 .token.effect-cheers::after {
   content: "🥂"; position: absolute;
-  left: -22px; top: -8px; font-size: 20px;
+  left: -28px; top: -16px; font-size: 26px;
+  animation: cheersBounce .25s ease-in-out infinite alternate;
+  z-index: 5;
 }
 .token.effect-blackout::after {
-  content: "😵"; position: absolute;
-  right: -10px; top: -10px; font-size: 22px;
-  animation: pulse .4s ease-in-out infinite alternate;
+  content: "😵💫"; position: absolute;
+  right: -8px; top: -22px; font-size: 22px;
+  letter-spacing: -2px;
+  animation: spin 1.2s linear infinite;
+  z-index: 5;
 }
 .token.effect-snack::after {
-  content: "🍤"; position: absolute;
-  left: -22px; top: 50%; transform: translateY(-50%);
-  font-size: 20px;
+  content: "🍤🍿"; position: absolute;
+  left: -36px; top: 50%; transform: translateY(-50%);
+  font-size: 22px; letter-spacing: -2px;
+  animation: floatY .8s ease-in-out infinite alternate;
+  z-index: 5;
 }
+
+/* Halo glow + shake on .ava (does not interfere with token transform) */
+.token.effect-shark .ava,
+.token.effect-cramp .ava,
+.token.effect-banana .ava,
+.token.effect-hurdle .ava,
+.token.effect-asteroid .ava,
+.token.effect-vomit .ava,
+.token.effect-blackout .ava {
+  animation: hitShake .12s linear infinite;
+  box-shadow: 0 0 26px 8px rgba(255,77,109,.7), 0 4px 12px rgba(0,0,0,.4);
+}
+.token.effect-jelly .ava,
+.token.effect-energy .ava,
+.token.effect-warp .ava,
+.token.effect-oneshot .ava,
+.token.effect-cheers .ava,
+.token.effect-snack .ava {
+  animation: boostPulse .35s ease-in-out infinite alternate;
+  box-shadow: 0 0 28px 10px rgba(125,249,255,.75), 0 4px 12px rgba(0,0,0,.4);
+}
+.token.effect-blackhole .ava {
+  animation: pullSpin 1s linear infinite;
+  box-shadow: 0 0 30px 12px rgba(192,132,252,.75), 0 4px 12px rgba(0,0,0,.4);
+}
+.token.effect-warp .ava {
+  box-shadow: 0 0 32px 12px rgba(125,249,255,.9), 0 4px 12px rgba(0,0,0,.4);
+}
+.token.effect-energy .ava {
+  box-shadow: 0 0 32px 12px rgba(255,213,0,.9), 0 4px 12px rgba(0,0,0,.4);
+}
+.token.effect-oneshot .ava,
+.token.effect-cheers .ava {
+  box-shadow: 0 0 28px 10px rgba(255,209,102,.85), 0 4px 12px rgba(0,0,0,.4);
+}
+
+/* Bare mode: combine drop-shadow filter with halo via box-shadow on a wrapper trick */
+.token.bare.effect-shark .ava,
+.token.bare.effect-cramp .ava,
+.token.bare.effect-banana .ava,
+.token.bare.effect-hurdle .ava,
+.token.bare.effect-asteroid .ava,
+.token.bare.effect-vomit .ava,
+.token.bare.effect-blackout .ava {
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,.55))
+          drop-shadow(0 0 14px rgba(255,77,109,.95));
+}
+.token.bare.effect-jelly .ava,
+.token.bare.effect-snack .ava {
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,.55))
+          drop-shadow(0 0 14px rgba(125,249,255,.95));
+}
+.token.bare.effect-energy .ava,
+.token.bare.effect-oneshot .ava,
+.token.bare.effect-cheers .ava {
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,.55))
+          drop-shadow(0 0 14px rgba(255,213,0,.95));
+}
+.token.bare.effect-warp .ava {
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,.55))
+          drop-shadow(0 0 14px rgba(125,249,255,.95));
+}
+.token.bare.effect-blackhole .ava {
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,.55))
+          drop-shadow(0 0 14px rgba(192,132,252,.95));
+}
+
+/* Finished medal */
 .token.finished::before {
   content: "🥇"; position: absolute;
-  top: -22px; left: 50%; transform: translateX(-50%);
-  font-size: 22px;
+  top: -32px; left: 50%; transform: translateX(-50%);
+  font-size: 28px;
+  filter: drop-shadow(0 0 10px rgba(255,213,0,.9));
+  animation: pulse .4s ease-in-out infinite alternate;
+  z-index: 6;
 }
 
 @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.25); } }
 @keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
+@keyframes floatY { from { transform: translateY(-50%) translateY(0); } to { transform: translateY(-50%) translateY(-6px); } }
+@keyframes hitShake {
+  0%,100% { transform: translateX(0) rotate(0); }
+  25% { transform: translateX(-3px) rotate(-2deg); }
+  75% { transform: translateX(3px) rotate(2deg); }
+}
+@keyframes boostPulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.1); }
+}
+@keyframes pullSpin {
+  to { transform: rotate(360deg); }
+}
 
 /* Event banner */
 .event-banner {
   position: fixed;
   left: 50%; top: 80px; transform: translateX(-50%);
-  background: rgba(0,0,0,.78);
+  background: linear-gradient(135deg, rgba(0,0,0,.85), rgba(40,20,60,.85));
   color: #fff;
-  padding: 10px 18px;
-  border-radius: 10px;
-  font-weight: 700;
-  font-size: 14px;
+  padding: 12px 22px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 15px;
   z-index: 10;
-  border: 1px solid rgba(255,255,255,.15);
-  animation: bannerIn .3s ease;
+  border: 2px solid rgba(255,255,255,.3);
+  box-shadow: 0 10px 30px rgba(0,0,0,.5), 0 0 30px rgba(125,249,255,.3);
+  animation: bannerIn .35s cubic-bezier(.18,.89,.32,1.28);
 }
 @keyframes bannerIn {
-  from { opacity: 0; transform: translate(-50%, -10px); }
-  to { opacity: 1; transform: translate(-50%, 0); }
+  from { opacity: 0; transform: translate(-50%, -16px) scale(.85); }
+  to { opacity: 1; transform: translate(-50%, 0) scale(1); }
 }
 
 /* Result */
@@ -383,8 +730,9 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 }
 .rankings li {
   display: flex; align-items: center; gap: 14px;
-  background: #161b2e;
-  border: 1px solid #232a44;
+  background: rgba(22,27,46,.7);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,.08);
   padding: 14px;
   border-radius: 12px;
   margin-bottom: 10px;
@@ -393,7 +741,7 @@ button:disabled { cursor: not-allowed; opacity: .45; }
   font-size: 22px; font-weight: 800;
   width: 40px; text-align: center;
 }
-.rankings .rank.gold { color: #ffd166; }
+.rankings .rank.gold { color: #ffd166; text-shadow: 0 0 8px rgba(255,213,0,.6); }
 .rankings .rank.silver { color: #c4cee0; }
 .rankings .rank.bronze { color: #d18b5e; }
 .rankings .ava-sm {
@@ -403,10 +751,10 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 }
 .rankings .ava-sm img,
 .rankings .ava-sm svg { width: 100%; height: 100%; object-fit: cover; }
-.rankings .name { flex: 1; font-weight: 600; }
+.rankings .name { flex: 1; font-weight: 700; }
 .rankings .time {
   font-variant-numeric: tabular-nums;
-  color: #98a2bf; font-size: 14px;
+  color: #b8c0e0; font-size: 14px;
 }
 
 .result-actions {

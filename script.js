@@ -41,12 +41,13 @@ const GAMES = {
   space: {
     name: '🚀 우주 날기 게임',
     theme: 'theme-space',
-    laneHeight: 60,
+    laneHeight: 78,
     duration: { min: 20, max: 32 },
     tokenStyle: (p, t) => {
-      const drift = Math.sin(t / 320 + p.bobPhase) * 14;
-      const tilt = Math.sin(t / 400 + p.bobPhase) * 12;
-      return `translate(0, calc(-50% + ${drift}px)) rotate(${tilt}deg)`;
+      const driftY = Math.sin(t / 380 + p.bobPhase) * 26;
+      const tilt = Math.sin(t / 450 + p.bobPhase * 1.3) * 24;
+      const scale = 0.92 + Math.abs(Math.sin(t / 700 + p.bobPhase)) * 0.16;
+      return `translate(0, calc(-50% + ${driftY}px)) rotate(${tilt}deg) scale(${scale})`;
     },
     events: [
       { id: 'blackhole', prob: 0.010, label: '🕳️ 블랙홀에 끌려간다!', apply: applyBlackhole },
@@ -57,13 +58,20 @@ const GAMES = {
   drink: {
     name: '🍺 술 마시기 게임',
     theme: 'theme-drink',
-    laneHeight: 56,
+    laneHeight: 78,
     duration: { min: 16, max: 26 },
-    // tipsy stagger: alternating tilt + slight bob
+    stationary: true, // 자리에 앉아 마시는 모드 — 진행은 잔 진행바로 표현
     tokenStyle: (p, t) => {
-      const stagger = Math.sin(t / 260 + p.bobPhase) * 14;
-      const bob = Math.abs(Math.sin(t / 180 + p.bobPhase)) * 4;
-      return `translate(0, calc(-50% - ${bob}px)) rotate(${stagger}deg)`;
+      // 약 3초마다 잔을 기울여 마시는 동작
+      const cycleMs = 3000;
+      const ms = (t + p.bobPhase * 1000) % cycleMs;
+      let drink = 0;
+      if (ms > 1800 && ms < 2500) {
+        const phase = (ms - 1800) / 700;
+        drink = -Math.sin(phase * Math.PI) * 34;
+      }
+      const sway = Math.sin(t / 600 + p.bobPhase) * 4;
+      return `translate(0, -50%) rotate(${drink + sway}deg)`;
     },
     events: [
       { id: 'oneshot',  prob: 0.013, label: '🍻 원샷! 텐션 폭발!',     apply: applyOneshot },
@@ -224,6 +232,7 @@ $('#start-btn').addEventListener('click', () => {
 $('#back-btn').addEventListener('click', () => {
   if (state.running) cancelAnimationFrame(state.running.rafId);
   state.running = null;
+  document.body.classList.remove('in-game-swim','in-game-run','in-game-space','in-game-drink');
   showScreen('lobby');
 });
 
@@ -237,6 +246,14 @@ function showScreen(name) {
 function startGame() {
   const g = GAMES[state.selectedGame];
   $('#game-title').textContent = g.name;
+
+  // Body theming per game (no black screen — vivid bg)
+  document.body.classList.remove('in-game-swim','in-game-run','in-game-space','in-game-drink');
+  document.body.classList.add('in-game-' + state.selectedGame);
+
+  // Hide finish line for stationary games (drink — players sit at seat)
+  $('#finish-line').style.display = g.stationary ? 'none' : '';
+
   const track = $('#track');
   track.className = ''; // reset
   track.classList.add(g.theme);
@@ -249,27 +266,48 @@ function startGame() {
     lane.className = 'lane';
     lane.innerHTML = `<span class="lane-label">${i + 1}레인 · ${escapeAttr(p.name)}</span>`;
 
+    // Progress track (stationary mode shows fill bar)
+    let progressFill = null;
+    if (g.stationary) {
+      const bar = document.createElement('div');
+      bar.className = 'progress-track';
+      bar.innerHTML = '<div class="progress-fill"></div>';
+      lane.appendChild(bar);
+      progressFill = bar.querySelector('.progress-fill');
+    }
+
+    // Token: image-as-is when uploaded (.bare), circular SVG avatar otherwise
+    const useBare = !!p.image;
     const token = document.createElement('div');
-    token.className = 'token';
+    token.className = 'token ' + g.theme + '-token' + (useBare ? ' bare' : '');
     token.dataset.id = p.id;
     token.innerHTML = `
       <span class="name-tag">${escapeAttr(p.name)}</span>
-      <div class="ava">${p.image
+      <div class="ava">${useBare
         ? `<img src="${p.image}" alt="">`
         : generateAvatarSVG(p.name)}</div>
+      <div class="deco"></div>
     `;
     lane.appendChild(token);
+
+    // Status label as sibling of token (so it never inherits token rotation)
+    const statusEl = document.createElement('div');
+    statusEl.className = 'status-label';
+    lane.appendChild(statusEl);
+
     track.appendChild(lane);
 
     return {
       ...p,
       el: token,
-      x: 0,                           // 0..1 progress
-      baseSpeed: 0.04 + Math.random() * 0.02, // per-second
+      statusEl,
+      progressFill,
+      x: 0,
+      baseSpeed: 0.04 + Math.random() * 0.02,
       speed: 0.04,
       jitter: 0,
       bobPhase: Math.random() * Math.PI * 2,
-      effects: {},                    // {type: {until, mult, vy?}}
+      effects: {},
       finished: false,
       finishTime: null,
       rank: null,
@@ -363,19 +401,67 @@ function updateRunners(r, dt, ts) {
   });
 }
 
+// Effect → status label (Korean) and tone (good/bad/party)
+const EFFECT_LABELS = {
+  shark:     { text: '🦈 도망 중!',   tone: 'bad'  },
+  cramp:     { text: '💢 다리 쥐!',   tone: 'bad'  },
+  jelly:     { text: '🪼 해파리 부스트', tone: 'good' },
+  banana:    { text: '🍌 미끄럼!',     tone: 'bad'  },
+  energy:    { text: '⚡ 에너지 폭주!', tone: 'good' },
+  hurdle:    { text: '🚧 허들 걸림!',   tone: 'bad'  },
+  blackhole: { text: '🕳️ 블랙홀에 끌림', tone: 'bad'  },
+  asteroid:  { text: '☄️ 운석 충돌!',   tone: 'bad'  },
+  warp:      { text: '✨ 워프 부스트!', tone: 'good' },
+  oneshot:   { text: '🍻 원샷!',       tone: 'party'},
+  vomit:     { text: '🤢 토하는 중…',   tone: 'bad'  },
+  cheers:    { text: '🥂 건배!',       tone: 'party'},
+  blackout:  { text: '😵 필름 끊김!',   tone: 'bad'  },
+  snack:     { text: '🍤 안주 보충!',   tone: 'good' },
+};
+
+function updateStatusLabel(p) {
+  const el = p.statusEl;
+  if (!el) return;
+  const keys = Object.keys(p.effects);
+  if (keys.length === 0 || p.finished) {
+    el.classList.remove('on');
+    return;
+  }
+  // Pick effect with most time remaining
+  keys.sort((a, b) => p.effects[b].until - p.effects[a].until);
+  const meta = EFFECT_LABELS[keys[0]];
+  if (!meta) { el.classList.remove('on'); return; }
+  el.textContent = meta.text;
+  el.dataset.tone = meta.tone;
+  el.classList.add('on');
+}
+
 function renderTokens(r, ts) {
   const track = $('#track');
   const trackW = track.clientWidth;
-  // Reserve space at right for finish line + token width
-  const tokenW = 44;
+  const tokenW = 60;
   const rightPad = 32;
   const usable = trackW - tokenW - rightPad;
+  const stationary = !!r.game.stationary;
+  const seatLeft = 24; // fixed left position for stationary mode
 
   r.runners.forEach((p) => {
-    const xPx = p.x * usable + 4;
     const tform = r.game.tokenStyle(p, ts);
-    p.el.style.left = xPx + 'px';
+    let xPx;
+    if (stationary) {
+      xPx = seatLeft;
+      p.el.style.left = xPx + 'px';
+      if (p.progressFill) p.progressFill.style.width = (p.x * 100) + '%';
+    } else {
+      xPx = p.x * usable + 4;
+      p.el.style.left = xPx + 'px';
+    }
     p.el.style.transform = tform;
+    // Status label sits below token center horizontally; doesn't rotate
+    if (p.statusEl) {
+      p.statusEl.style.left = (xPx + tokenW / 2) + 'px';
+    }
+    updateStatusLabel(p);
   });
 }
 
@@ -463,6 +549,7 @@ $('#rematch').addEventListener('click', () => {
 });
 $('#to-lobby').addEventListener('click', () => {
   state.running = null;
+  document.body.classList.remove('in-game-swim','in-game-run','in-game-space','in-game-drink');
   showScreen('lobby');
 });
 
