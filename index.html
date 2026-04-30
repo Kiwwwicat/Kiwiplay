@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>키위 경쟁 게임</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ============== LOBBY ============== -->
+  <section id="lobby" class="screen">
+    <header class="lobby-header">
+      <h1>🏁 키위 경쟁 게임</h1>
+      <p class="subtitle">게임을 고르고, 플레이어를 등록하고, 우승자를 가려보세요</p>
+    </header>
+
+    <div class="game-select" role="radiogroup" aria-label="게임 선택">
+      <button class="game-card" data-game="swim" role="radio" aria-checked="true">
+        <div class="game-emoji">🏊</div>
+        <div class="game-title">수영 게임</div>
+        <div class="game-desc">상어, 다리쥐, 해파리…</div>
+      </button>
+      <button class="game-card" data-game="run" role="radio" aria-checked="false">
+        <div class="game-emoji">🏃</div>
+        <div class="game-title">달리기 게임</div>
+        <div class="game-desc">바나나, 허들, 에너지드링크</div>
+      </button>
+      <button class="game-card" data-game="space" role="radio" aria-checked="false">
+        <div class="game-emoji">🚀</div>
+        <div class="game-title">우주 날기 게임</div>
+        <div class="game-desc">블랙홀, 운석, 워프 부스트</div>
+      </button>
+      <button class="game-card" data-game="drink" role="radio" aria-checked="false">
+        <div class="game-emoji">🍺</div>
+        <div class="game-title">술 마시기 게임</div>
+        <div class="game-desc">원샷, 토함, 건배, 필름끊김</div>
+      </button>
+    </div>
+
+    <div class="players-section">
+      <div class="players-head">
+        <h2>플레이어 (<span id="player-count">0</span>/10)</h2>
+        <button id="add-player" class="btn-secondary">+ 플레이어 추가</button>
+      </div>
+      <div id="players-list" class="players-list"></div>
+      <p class="hint">이미지를 등록하지 않으면 이름 기반 아바타가 자동 생성됩니다.</p>
+    </div>
+
+    <button id="start-btn" class="btn-primary" disabled>게임 시작</button>
+  </section>
+
+  <!-- ============== GAME ============== -->
+  <section id="game" class="screen" hidden>
+    <div class="game-topbar">
+      <button id="back-btn" class="btn-ghost">← 로비</button>
+      <div id="game-title" class="game-title-top"></div>
+      <div id="timer" class="timer">00:00</div>
+    </div>
+    <div id="track-wrap">
+      <div id="track"></div>
+      <div id="finish-line"></div>
+    </div>
+    <div id="event-banner" class="event-banner" hidden></div>
+  </section>
+
+  <!-- ============== RESULT ============== -->
+  <section id="result" class="screen" hidden>
+    <h2>🏆 최종 결과</h2>
+    <ol id="rankings" class="rankings"></ol>
+    <div class="result-actions">
+      <button id="rematch" class="btn-primary">같은 멤버로 다시</button>
+      <button id="to-lobby" class="btn-secondary">로비로</button>
+    </div>
+  </section>
+
+</div>
+<script src="script.js"></script>
+</body>
+</html>
