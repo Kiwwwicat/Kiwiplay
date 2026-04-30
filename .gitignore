@@ -4,3 +4,6 @@ desktop.ini
 .vscode/
 .idea/
 *.log
+
+# 내부 작업 로그 (공개 안 함)
+WORK_LOG.md
